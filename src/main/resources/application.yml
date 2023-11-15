@@ -21,10 +21,10 @@ mybatis-plus:
 enjoy:
   qiniu:
     host: http://ruykfrdv7.hn-bkt.clouddn.com/
-    ak: C6XG_9RplY-Gv_lJO3oeEcXwUPVLOc7Ztfas0bT1
-    sk: VV9bxrXKL33qR0o323AW55_OrXSVjUXcKJlr8ToS
+    ak: {}
+    sk: {}
     bucket: enjoytake
   sms:
     regionId: cn-hangzhou
-    accessKeyId: LTAI5tMALgxHd6DQ5h7SNgbC
-    secret: z5OuIq0UfzbtkvFkaoaUg2bPxMwVv3
+    accessKeyId: {}
+    secret: {}
