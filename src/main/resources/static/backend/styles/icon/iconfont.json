@@ -1,0 +1,58 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1375",
+      "name": "订单",
+      "font_class": "dingdan",
+      "unicode": "f01be",
+      "unicode_decimal": 983486
+    },
+    {
+      "icon_id": "77149",
+      "name": "进入店铺",
+      "font_class": "jinrudianpu",
+      "unicode": "f0101",
+      "unicode_decimal": 983297
+    },
+    {
+      "icon_id": "2170590",
+      "name": "菜品-1",
+      "font_class": "caipin-",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "7712242",
+      "name": "员工",
+      "font_class": "yuangong",
+      "unicode": "e72e",
+      "unicode_decimal": 59182
+    },
+    {
+      "icon_id": "8334936",
+      "name": "分类",
+      "font_class": "fenlei",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "13000498",
+      "name": "用户",
+      "font_class": "yonghu",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "15258742",
+      "name": "优惠套餐",
+      "font_class": "youhuitaocan",
+      "unicode": "e631",
+      "unicode_decimal": 58929
+    }
+  ]
+}

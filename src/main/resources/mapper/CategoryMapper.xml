@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wfh.enjoy.mapper.CategoryMapper">
+
+    <select id="getCategoryByPage" resultType="com.wfh.enjoy.dto.CategoryDto">
+        SELECT
+            c.*,
+            s.`name` AS shopName
+        FROM
+            category AS c
+                LEFT JOIN shop AS s ON c.shop_id = s.id
+        <where>
+            <if test="shopId != null and shopId != '' and shopId != 1 ">
+                c.shop_id = #{shopId}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="getCategoryList" resultType="com.wfh.enjoy.entity.Category">
+        SELECT
+            *
+        FROM
+            category
+        <where>
+            <if test="type != null and type != ''">
+                `type` = #{type}
+            </if>
+            <if test="shopId != 1 and shopId != null and shopId != ''">
+                and shop_id = #{shopId}
+            </if>
+        </where>
+    </select>
+</mapper>

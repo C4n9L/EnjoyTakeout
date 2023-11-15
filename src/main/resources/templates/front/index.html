@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=no,minimal-ui">
+    <title>乐享外卖</title>
+    <!--不同屏幕尺寸根字体设置-->
+    <script src="/front/js/base.js"></script>
+    <!--element-ui的样式-->
+    <link rel="stylesheet" href="/backend/plugins/element-ui/index.css"/>
+    <!--引入vant样式-->
+    <link rel="stylesheet" href="/front/styles/vant.min.css"/>
+    <!-- 引入样式  -->
+    <link rel="stylesheet" href="/front/styles/index.css" />
+    <!--本页面内容的样式-->
+    <link rel="stylesheet" href="/front/styles/main.css" />
+</head>
+<body>
+<div id="main" class="app">
+    <div class="divHead">
+        <img src="/front/images/user.png" @click="toUserPage"/>
+    </div>
+    <div class="shop-list">
+        <el-card v-for="shop in shopList" :key="shop.id" :body-style="{ padding: '0px' }" @click.native="toShopDetail(shop.id)">
+            <div class="divTitle" style="position: relative;margin-top: 30rem;top:0">
+                <div class="divStatic">
+                    <img :src="imgPathConvert(shop.image)"  class="logo"/>
+                    <div class="divDesc">
+                        <div class="divName">{{shop.name}}</div>
+                        <div class="divSend">
+                            <span><img src="/front/images/time.png"/> 距离1.5km</span>
+                            <span><img src="/front/images/money.png"/> 配送费6元</span>
+                            <span><img src="/front/images/location.png"/> 预计时长12min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="divDesc">
+                    {{shop.description}}
+                </div>
+            </div>
+        </el-card>
+    </div>
+</div>
+</body>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="/backend/plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="/backend/plugins/element-ui/index.js"></script>
+<!-- 引入vant样式 -->
+<script src="/front/js/vant.min.js"></script>
+<!-- 引入axios -->
+<script src="/backend/plugins/axios/axios.min.js"></script>
+<script src="/front/js/request.js"></script>
+<script src="/front/js/common.js"></script>
+<script src="/front/api/main.js"></script>
+<script src="/backend/api/shop.js"></script>
+
+<script>
+    new Vue({
+        el:'#main',
+        data(){
+            return {
+                //左边菜品类别index
+                activeType:0,
+                name: '',
+                shopList: []
+            }
+        },
+        computed:{
+
+        },
+        created(){
+        },
+        watch:{
+        },
+        mounted(){
+            this.initData()
+        },
+        methods:{
+            //初始化数据
+            initData() {
+                this.getShopList();
+            },
+
+            async getShopList(params){
+                getShopList(params).then(res => {
+                    if (res.code === 200) {
+                        this.shopList = res.data;
+                        console.log('shopList:' + JSON.stringify(this.shopList,null,2))
+                    } else {
+                        this.$message.error(res.msg || '操作失败');
+                    }
+                });
+            },
+            //网络图片路径转换
+            imgPathConvert(path){
+                return imgPath(path)
+            },
+            toUserPage(){
+                window.requestAnimationFrame(()=>{
+                    window.location.href= '/app/user.html'
+                })
+            },
+            toShopDetail(id){
+                window.requestAnimationFrame(()=>{
+                    window.location.href= '/app/shopDetail.html?id=' + id
+                })
+            },
+        }
+
+    })
+</script>
+</html>

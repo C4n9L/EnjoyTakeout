@@ -1,0 +1,30 @@
+server:
+  port: 8080
+spring:
+  application:
+    #应用名称
+    name: EnjoyTakeout
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/enjoy?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+      username: root
+      password: aaaa
+mybatis-plus:
+  configuration:
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+enjoy:
+  qiniu:
+    host: http://ruykfrdv7.hn-bkt.clouddn.com/
+    ak: C6XG_9RplY-Gv_lJO3oeEcXwUPVLOc7Ztfas0bT1
+    sk: VV9bxrXKL33qR0o323AW55_OrXSVjUXcKJlr8ToS
+    bucket: enjoytake
+  sms:
+    regionId: cn-hangzhou
+    accessKeyId: LTAI5tMALgxHd6DQ5h7SNgbC
+    secret: z5OuIq0UfzbtkvFkaoaUg2bPxMwVv3

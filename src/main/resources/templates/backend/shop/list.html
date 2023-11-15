@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/backend/plugins/element-ui/index.css"/>
+    <link rel="stylesheet" href="/backend/styles/common.css" />
+    <link rel="stylesheet" href="/backend/styles/page.css" />
+    <style>
+        #member-app  .notAdmin::after{
+            border: 0 !important;
+
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container" id="member-app">
+    <div class="container">
+        <div class="tableBar">
+            <el-input
+                    v-model="input"
+                    placeholder="请输入店铺名称"
+                    style="width: 250px"
+                    clearable
+                    @keyup.enter.native="handleQuery"
+            >
+                <i
+                        slot="prefix"
+                        class="el-input__icon el-icon-search"
+                        style="cursor: pointer"
+                        @click="handleQuery"
+                ></i>
+            </el-input>
+            <el-button
+                    type="primary"
+                    @click="addShopHandle('add')"
+                    v-if="user === 'admin'"
+            >
+                + 添加店铺
+            </el-button>
+        </div>
+        <el-table
+                :data="tableData"
+                stripe
+                class="tableBox"
+        >
+            <el-table-column
+                    prop="name"
+                    label="店铺名称"
+            ></el-table-column>
+            <el-table-column prop="image" label="图片" align="center">
+                <template slot-scope="{ row }">
+                    <el-image style="width: auto; height: 40px; border:none;cursor: pointer;"
+                              :src="getImage(row.image)"
+                              :preview-src-list="[ `http://rsmts4myo.hn-bkt.clouddn.com/${row.image}` ]" >
+                        <div slot="error" class="image-slot">
+                            <img src="/backend/images/noImg.png"  style="width: auto; height: 40px; border:none;" >
+                        </div>
+                    </el-image>
+                </template>
+            </el-table-column>
+            <el-table-column
+                    prop="phone"
+                    label="商家电话"
+            ></el-table-column>
+            <el-table-column
+                    prop="detail"
+                    label="店铺地址">
+            </el-table-column>
+            <el-table-column
+                    prop="description"
+                    label="店铺描述">
+            </el-table-column>
+            <el-table-column
+                    label="操作"
+                    width="160"
+                    align="center"
+                    v-if="user === 'admin'"
+            >
+                <template slot-scope="scope">
+                    <el-button
+                            type="text"
+                            size="small"
+                            class="blueBug"
+                            @click="addShopHandle(scope.row.id)"
+                            :class="{notAdmin:user !== 'admin'}"
+                            v-if="user === 'admin'"
+                    >
+                        编辑
+                    </el-button>
+                    <el-button
+                            type="text"
+                            size="small"
+                            class="delBut non"
+                            @click="deleteShopHandle(scope.row.id)"
+                    >
+                        删除
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <el-pagination
+                class="pageList"
+                :page-sizes="[5, 10, 20, 30, 40]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="counts"
+                :current-page.sync="page"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+        ></el-pagination>
+    </div>
+</div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="/backend/plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="/backend/plugins/element-ui/index.js"></script>
+<!-- 引入axios -->
+<script src="/backend/plugins/axios/axios.min.js"></script>
+<script src="/backend/js/request.js"></script>
+<script src="/backend/api/shop.js"></script>
+<script>
+    new Vue({
+        el: '#member-app',
+        data() {
+            return {
+                input: '',
+                counts: 0,
+                page: 1,
+                pageSize: 5,
+                tableData : [],
+                id : '',
+                status : '',
+            }
+        },
+        computed: {},
+        created() {
+            this.init()
+            if(localStorage.getItem('userInfo') != null) {
+                //获取当前登录员工的账号信息并赋值给模型数据user
+                this.user = JSON.parse(localStorage.getItem('userInfo')).username
+            }
+        },
+        mounted() {
+        },
+        methods: {
+            async init () {
+                const params = {
+                    page: this.page,
+                    pageSize: this.pageSize,
+                    name: this.input ? this.input : undefined
+                }
+                await getShopPage(params).then(res => {
+                    if (String(res.code) === '200') {
+                        this.tableData = res.data.records || []
+                        this.counts = res.data.total
+                    }
+                }).catch(err => {
+                    this.$message.error('请求出错了：' + err)
+                })
+            },
+            handleQuery() {
+                this.page = 1;
+                this.init();
+            },
+            // 添加
+            addShopHandle (st) {
+                if (st === 'add'){
+                    window.parent.menuHandle({
+                        id: '1',
+                        url: 'shop/add.html',
+                        name: '添加店铺'
+                    },true)
+                } else {
+                    window.parent.menuHandle({
+                        id: '1',
+                        url: 'shop/add.html?id='+st,
+                        name: '修改店铺'
+                    },true)
+                }
+            },
+            getImage (image) {
+                return `http://ruykfrdv7.hn-bkt.clouddn.com/${image}`
+            },
+            //状态修改
+            deleteShopHandle (row) {
+                this.id = row.id
+                this.status = row.status
+                this.$confirm('确认删除该店铺?', '提示', {
+                    'confirmButtonText': '确定',
+                    'cancelButtonText': '取消',
+                    'type': 'warning'
+                }).then(() => {
+                    deleteShopById({ 'id': this.id}).then(res => {
+                        if (String(res.code) === '200') {
+                            this.$message.success('删除成功！')
+                            this.handleQuery()
+                        }
+                    }).catch(err => {
+                        this.$message.error('请求出错了：' + err)
+                    })
+                })
+            },
+            handleSizeChange (val) {
+                this.pageSize = val
+                this.init()
+            },
+            handleCurrentChange (val) {
+                this.page = val
+                this.init()
+            }
+        }
+    })
+</script>
+</body>
+</html>

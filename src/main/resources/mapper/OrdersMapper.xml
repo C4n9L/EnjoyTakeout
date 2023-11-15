@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wfh.enjoy.mapper.OrdersMapper">
+
+    <select id="getOrdersPage" resultType="com.wfh.enjoy.entity.Orders">
+        select * from orders
+        <where>
+            <if test="shopId != null and shopId != ''">
+                c.shop_id = #{shopId}
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="userOrdersResultMap" type="com.wfh.enjoy.dto.OrdersDto">
+        <id property="id" column="id"/>
+        <result property="amount" column="amount"/>
+        <result property="orderTime" column="order_time"/>
+        <collection property="orderDetailList" javaType="java.util.List" ofType="com.wfh.enjoy.entity.OrderDetail" select="getOrderDetailList" column="id"/>
+    </resultMap>
+
+    <select id="getUserOrders" resultMap="userOrdersResultMap">
+        SELECT
+            id,
+            amount,
+            order_time
+        FROM
+            orders
+    </select>
+
+    <select id="getOrderDetailList" resultType="com.wfh.enjoy.entity.OrderDetail">
+        SELECT
+            id,
+            `number`,
+            `name`
+        FROM
+            order_detail
+        WHERE
+            order_id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wfh.enjoy.mapper.SetmealMapper">
+
+    <select id="getSetmealDtoByPage" resultType="com.wfh.enjoy.dto.SetmealDto" >
+        SELECT
+            s.*,
+            s.`name` AS categoryName,
+            ( SELECT `name` FROM shop WHERE id = s.shop_id ) AS shopName
+        FROM
+            setmeal AS s
+                LEFT JOIN setmeal_dish AS d ON s.id = d.setmeal_id
+        <where>
+            <if test="name != null and name != ''">
+                d.name like "%"#{name}"%"
+            </if>
+            <if test="shopId != null and shopId != '' and shopId != 1 ">
+                and s.shop_id = #{shopId}
+            </if>
+        </where>
+    </select>
+
+
+    <resultMap id="setmealResultMap" type="com.wfh.enjoy.dto.SetmealDto">
+        <id property="id" column="sid"/>
+        <result property="price" column="sPrice"/>
+        <result property="name" column="sName"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="shopId" column="shop_id"/>
+        <result property="description" column="description"/>
+        <result property="image" column="image"/>
+        <collection property="setmealDishes" javaType="java.util.List" ofType="com.wfh.enjoy.entity.SetmealDish" resultMap="setmealDishesResultMap"/>
+    </resultMap>
+    <resultMap id="setmealDishesResultMap" type="com.wfh.enjoy.entity.SetmealDish">
+        <id property="id" column="did"/>
+        <result property="copies" column="copies"/>
+        <result property="price" column="dPrice"/>
+        <result property="name" column="dName"/>
+    </resultMap>
+    <select id="getSetmealById" resultMap="setmealResultMap">
+        SELECT
+            s.id AS sid,
+            d.id AS did,
+            s.price AS sPrice,
+            d.price AS dPrice,
+            s.`name` AS sName,
+            d.`name` AS dName,
+            s.price,
+            s.category_id,
+            s.shop_id,
+            s.image,
+            s.description,
+            d.copies
+        FROM
+            setmeal AS s
+                LEFT JOIN setmeal_dish AS d ON s.id = d.setmeal_id
+        WHERE
+            s.id = #{id}
+    </select>
+</mapper>

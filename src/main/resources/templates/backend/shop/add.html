@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/backend/plugins/element-ui/index.css"/>
+    <link rel="stylesheet" href="/backend/styles/common.css" />
+    <link rel="stylesheet" href="/backend/styles/page.css" />
+    <style>
+        .selectInput {
+            position: relative;
+            width: 100%;
+            min-width: 100px;
+        }
+        .selectInput .flavorSelect {
+            position: absolute;
+            width: 100%;
+            padding: 0 10px;
+            border-radius: 3px;
+            border: solid 1px #FF903D;
+            line-height: 30px;
+            text-align: center;
+            background: #fff;
+            top: 50px;
+            z-index: 99;
+        }
+        .selectInput .flavorSelect .items {
+            cursor: pointer;
+            display: inline-block;
+            width: 100%;
+            line-height: 35px;
+            border-bottom: solid 1px #f4f4f4;
+            color: #666;
+        }
+        .selectInput .flavorSelect .none {
+            font-size: 14px;
+        }
+
+        #food-add-app .uploadImg .el-form-item__label::before{
+            content: '*';
+            color: #F56C6C;
+            margin-right: 4px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="addBrand-container" id="food-add-app">
+    <div class="container">
+        <el-form
+                ref="ruleForm"
+                :model="ruleForm"
+                :rules="rules"
+                :inline="true"
+                label-width="180px"
+                class="demo-ruleForm"
+        >
+            <div>
+                <el-form-item
+                        label="店铺名称:"
+                        prop="name"
+                >
+                    <el-input
+                            v-model="ruleForm.name"
+                            placeholder="请填写店铺名称"
+                            maxlength="20"
+
+                    />
+                </el-form-item>
+            </div>
+            <div>
+                <el-form-item
+                        label="商家电话:"
+                        prop="phone"
+                >
+                    <el-input
+                            v-model="ruleForm.phone"
+                            placeholder="请输入商家电话"
+                            maxlength="11"
+                    />
+                </el-form-item>
+            </div>
+            <div>
+                <el-form-item
+                        label="店铺图片:"
+                        prop="region"
+                        class="uploadImg"
+                >
+                    <el-upload
+                            class="avatar-uploader"
+                            action="/common/upload"
+                            :show-file-list="false"
+                            :on-success="handleAvatarSuccess"
+                            :on-change="onChange"
+                            ref="upload"
+                    >
+                        <img
+                                v-if="imageUrl"
+                                :src="imageUrl"
+                                class="avatar"
+                        ></img>
+                        <i
+                                v-else
+                                class="el-icon-plus avatar-uploader-icon"
+                        ></i>
+                    </el-upload>
+                </el-form-item>
+            </div>
+            <div class="address">
+                </el-form-item>
+                <el-form-item label="店铺地址:" prop="selectedOption">
+                    <el-cascader
+                            v-model="selectedOption"
+                            :options="options"
+                            placeholder="请选择地址"
+                            ref="addressCascader"
+                            :props="prop"
+                            @change="handleChange"
+                            class="cascader-wrapper"
+                    >
+                    </el-cascader>
+                </el-form-item>
+                <el-form-item
+                        label="具体地址:"
+                        prop="detail"
+                >
+                    <el-input
+                            v-model="ruleForm.detail"
+                            type="textarea"
+                            :rows="3"
+                            placeholder="具体地址，最长200字"
+                            maxlength="200"
+                    />
+                </el-form-item>
+            </div>
+            <div class="description">
+                <el-form-item
+                        label="店铺描述:"
+                        prop="description"
+                >
+                    <el-input
+                            v-model="ruleForm.description"
+                            type="textarea"
+                            :rows="3"
+                            placeholder="店铺描述，最长200字"
+                            maxlength="200"
+                    />
+                </el-form-item>
+            </div>
+            <div class="subBox address">
+                <el-form-item>
+                    <el-button @click="goBack()">
+                        取消
+                    </el-button>
+                    <el-button
+                            type="primary"
+                            @click="submitForm('ruleForm')"
+                    >
+                        保存
+                    </el-button>
+                    <el-button
+                            v-if="actionType == 'add'"
+                            type="primary"
+                            class="continue"
+                            @click="submitForm('ruleForm','goAnd')"
+                    >
+                        保存并继续添加店铺
+                    </el-button>
+                </el-form-item>
+            </div>
+        </el-form>
+    </div>
+</div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="/backend/plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="/backend/plugins/element-ui/index.js"></script>
+<!-- 引入axios -->
+<script src="/backend/plugins/axios/axios.min.js"></script>
+<script src="/backend/js/request.js"></script>
+<script src="/backend/js/area.js"></script>
+<script src="/backend/js/validate.js"></script>
+<script src="/backend/js/index.js"></script>
+<script src="/backend/api/shop.js"></script>
+<script>
+    new Vue({
+        el: '#food-add-app',
+        data() {
+            return {
+                id: '',
+                restKey: 0,
+                value: '',
+                imageUrl: '',
+                provinceList: [],
+                cityList: [],
+                areaList: [],
+                options: [],
+                prop: {
+                   lazy: true,
+                   lazyLoad: this.loadCascaderData
+                },
+                addressInfo:{
+                    provinceCode: '',
+                    provinceName: '',
+                    cityCode: '',
+                    cityName: '',
+                    districtCode: '',
+                    districtName: '',
+                },
+                selectedOption: [],
+                actionType: '',
+                vueRest : '1',
+                index : 0,
+                inputStyle  : {'flex':1},
+                ruleForm  : {
+                    'name': '',
+                    'phone': '',
+                    'detail': '',
+                    'image': '',
+                    'description': ''
+                },
+                mak: false
+            }
+        },
+        computed: {
+            rules () {
+                return {
+                    'name': [
+                        {'required': true, 'message': '请填写店铺名称', 'trigger': 'blur'}
+                    ],
+                    phone: [{ 'required': true, 'validator': checkPhone, 'trigger': 'blur' }]
+                }
+            }
+        },
+        created() {
+            this.id = requestUrlParam('id')
+            this.actionType = this.id ? 'edit' : 'add'
+            this.fetchAreaData()
+            if (this.id) {
+                this.init()
+            }
+        },
+        mounted() {
+
+        },
+        methods: {
+            async init () {
+                queryShopById(this.id).then(res => {
+                    if (String(res.code) === '200') {
+                        this.ruleForm = { ...res.data }
+                        this.imageUrl = `http://ruykfrdv7.hn-bkt.clouddn.com/${res.data.image}`
+                    } else {
+                        this.$message.error(res.msg || '操作失败')
+                    }
+                })
+            },
+            submitForm(formName, st) {
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        console.log('validate success')
+                        let params = {...this.ruleForm}
+                        if(!this.imageUrl){
+                            this.$message.error('请上传店铺图片')
+                            return
+                        }
+                        if (this.actionType == 'add') {
+                            console.log('to add')
+                            delete params.id
+                            addShop(params).then(res => {
+                                if (res.code === 200) {
+                                    this.$message.success('店铺添加成功！')
+                                    if (!st) {
+                                        this.goBack()
+                                    } else {
+                                        this.dishFlavors = []
+                                        // this.dishFlavorsData = []
+                                        this.imageUrl = ''
+                                        this.ruleForm = {
+                                            'name': '',
+                                            'id': '',
+                                            'price': '',
+                                            'code': '',
+                                            'image': '',
+                                            'description': '',
+                                            'dishFlavors': [],
+                                            'status': true,
+                                            categoryId: ''
+                                        }
+                                    }
+                                } else {
+                                    this.$message.error(res.msg || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        } else {
+                            editShop(params).then(res => {
+                                if (res.code === 200) {
+                                    this.$message.success('店铺修改成功！')
+                                    this.goBack()
+                                } else {
+                                    this.$message.error(res.msg || '操作失败')
+                                }
+                            }).catch(err => {
+                                this.$message.error('请求出错了：' + err)
+                            })
+                        }
+                    } else {
+                        return false
+                    }
+                })
+            },
+
+            handleAvatarSuccess (response, file, fileList) {
+                // 拼接down接口预览
+                if(response.code === 0 && response.msg === 'NOTLOGIN'){
+                    window.top.location.href = '/enjoy/login/login.html'
+                }else{
+                    this.imageUrl = `http://ruykfrdv7.hn-bkt.clouddn.com/${response.data}`
+                    this.ruleForm.image = response.data
+                }
+            },
+
+            onChange (file) {
+                if(file){
+                    const suffix = file.name.split('.')[1]
+                    const size = file.size / 1024 / 1024 < 2
+                    if(['png','jpeg','jpg'].indexOf(suffix) < 0){
+                        this.$message.error('上传图片只支持 png、jpeg、jpg 格式！')
+                        this.$refs.upload.clearFiles()
+                        return false
+                    }
+                    if(!size){
+                        this.$message.error('上传文件大小不能超过 2MB!')
+                        return false
+                    }
+                    return file
+                }
+            },
+            async fetchAreaData() {
+                fetchAreaData()
+                    .then(data => {
+                        this.provinceList = data.provinceList
+                        this.cityList = data.cityList
+                        this.areaList = data.areaList
+                        this.generateOptions()
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            },
+            generateOptions() {
+                const options = []
+                // 遍历shopList生成菜单选项
+                this.provinceList.forEach(province => {
+                    const provinceOption = {
+                        value: province.value,
+                        label: province.name,
+                        children: []
+                    };
+                    options.push(provinceOption);
+                });
+                this.options = options;
+            },
+            // 处理地址选项改变事件
+            loadCascaderData(node, resolve) {
+                const { level,value } = node
+                if(level === 1){
+                    // 加载市级数据
+                    const provinceValue = value;
+                    // 根据省级的值获取对应的市级数据
+                    const cityList = this.getCityListByProvince(provinceValue);
+                    const cities = cityList.map((city) => {
+                        return {
+                            value: city.value,
+                            label: city.name,
+                            leaf: false // 初始化为非叶子节点，待后续动态加载
+                        };
+                    });
+                    resolve(cities);
+                }
+                else if (level === 2) {
+                    // 加载区级数据
+                    const provinceValue = this.selectedOption[0];
+                    const cityValue = value;
+                    // 根据省级和市级的值获取对应的区级数据
+                    const areaList = this.getAreaListByProvinceAndCity(provinceValue, cityValue);
+                    const areas = areaList.map((area) => {
+                        return {
+                            value: area.value,
+                            label: area.name,
+                            leaf: true // 区级为叶子节点，无需加载子选项
+                        };
+                    });
+                    resolve(areas);
+                }
+            },
+            getCityListByProvince(provinceValue) {
+                // 根据省级的值获取对应的市级数据
+                // 这里假设你有一个名为 cityList 的数组存储了市级数据
+                return this.cityList.filter((city) => city.parent === provinceValue);
+            },
+            getAreaListByProvinceAndCity(provinceValue, cityValue) {
+                // 根据省级和市级的值获取对应的区级数据
+                // 这里假设你有一个名为 areaList 的数组存储了区级数据
+                return this.areaList.filter((area) => area.parent === cityValue);
+            },
+            handleChange(selectedOption){
+                const checkedNode =  this.$refs["addressCascader"].getCheckedNodes();
+
+                this.selectedOption = selectedOption
+                console.log(this.selectedOption)
+            },
+            goBack(){
+                window.parent.menuHandle({
+                    id: '1',
+                    url: 'shop/list.html',
+                    name: '门店管理'
+                },false)
+            }
+        }
+    })
+</script>
+</body>
+</html>

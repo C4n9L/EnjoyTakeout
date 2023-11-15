@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wfh.enjoy.mapper.DishMapper">
+    <update id="updateDishStatus">
+        update dish set status = #{status} where id in (${ids})
+    </update>
+    <select id="getDishDtoByPage" resultType="com.wfh.enjoy.dto.DishDto">
+        SELECT
+            d.*,
+            c.`name` as categoryName,
+            (SELECT s.name FROM shop as s WHERE d.shop_id = s.id) as shopName
+        FROM
+            dish AS d
+                LEFT JOIN category AS c ON d.category_id = c.id
+        <where>
+            <if test=" shopId != null and shopId != '' and shopId != 1 ">
+                d.shop_id = #{shopId}
+            </if>
+        </where>
+    </select>
+</mapper>
