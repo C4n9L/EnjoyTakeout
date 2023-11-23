@@ -20,10 +20,10 @@ mybatis-plus:
       id-type: ASSIGN_ID
 enjoy:
   qiniu:
-    host: http://ruykfrdv7.hn-bkt.clouddn.com/
-    ak: {}
-    sk: {}
-    bucket: enjoytake
+    host: http://s4iz4on91.hd-bkt.clouddn.com/
+    ak: C6XG_9RplY-Gv_lJO3oeEcXwUPVLOc7Ztfas0bT1
+    sk: VV9bxrXKL33qR0o323AW55_OrXSVjUXcKJlr8ToS
+    bucket: enjoy-takeout
   sms:
     regionId: cn-hangzhou
     accessKeyId: {}

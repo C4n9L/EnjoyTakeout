@@ -46,7 +46,8 @@ public class FileUtils {
             Response response = uploadManager.put(file.getBytes(),key,upToken);
             //解析上传成功的结果
             DefaultPutRet putRet = JSON.parseObject(response.bodyString(), DefaultPutRet.class);
-            fileUrl = host + putRet.key;
+            String res = putRet.key;
+            fileUrl = host + res;
 
         } catch (QiniuException ex) {
             ex.printStackTrace();
