@@ -7,16 +7,17 @@ import com.wfh.enjoy.entity.User;
 import com.wfh.enjoy.service.UserService;
 import com.wfh.enjoy.utils.BaseContext;
 import com.wfh.enjoy.utils.Result;
-import com.wfh.enjoy.utils.SMSUtils;
 import com.wfh.enjoy.utils.ValidateCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -25,6 +26,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 发送手机短信验证码
@@ -45,7 +48,9 @@ public class UserController {
             //SMSUtils.sendMessage("乐享外卖","",phone,code);
 
             //需要将生成的验证码保存到Session
-            session.setAttribute(phone,code);
+            //session.setAttribute(phone,code);
+            stringRedisTemplate.opsForValue().set(phone,code,5, TimeUnit.MINUTES);
+
 
             return Result.ok("手机验证码短信发送成功");
         }
@@ -70,7 +75,8 @@ public class UserController {
         String code = map.get("code").toString();
 
         //从Session中获取保存的验证码
-        Object codeInSession = session.getAttribute(phone);
+        //Object codeInSession = session.getAttribute(phone);
+        String codeInSession = stringRedisTemplate.opsForValue().get(phone);
 
         //进行验证码的比对（页面提交的验证码和Session中保存的验证码比对）
         if(codeInSession != null && codeInSession.equals(code)){
@@ -88,6 +94,7 @@ public class UserController {
                 userService.save(user);
             }
             session.setAttribute("user",user.getId());
+            stringRedisTemplate.delete(phone);
             return Result.ok(user);
         }
         return Result.error("登录失败");

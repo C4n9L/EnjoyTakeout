@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -30,7 +29,13 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 
         log.info("emp.shopId:{}",shopId);
 
-        page = employeeMapper.getEmployeeByPage(page,name,shopId);
+        boolean flag = shopId != null && shopId != 1;
+
+        page = this.page(page,new LambdaQueryWrapper<Employee>()
+                        .like(StringUtils.hasText(name),Employee::getName,name)
+                        .eq(flag,Employee::getShopId,shopId)
+                        .orderByAsc(Employee::getCreateTime)
+                );
 
         return page;
     }

@@ -1,6 +1,7 @@
 package com.wfh.enjoy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wfh.enjoy.dto.CategoryDto;
@@ -15,8 +16,11 @@ import com.wfh.enjoy.service.IDishService;
 import com.wfh.enjoy.service.ISetmealService;
 import com.wfh.enjoy.utils.BaseContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
 
@@ -86,12 +90,19 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         Integer type = category.getType();
 
 
+        boolean flag = true;
 
         if(shopId == null || (shopId == null && type == 1)){
            shopId = BaseContext.getShopId();
            log.info("CategoryServiceImpl.shopId:{}",shopId);
+           flag = false;
         }
-        List<Category> categoryList = categoryMapper.getCategoryList(type, shopId);
+
+        List<Category> categoryList = this.list(new LambdaQueryWrapper<Category>()
+                        .eq(Category::getType,type)
+                        .eq(Category::getShopId,shopId)
+                );
+
         return categoryList;
     }
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wfh.enjoy.entity.Employee;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,6 +13,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface EmployeeMapper extends BaseMapper<Employee> {
-
-    Page<Employee> getEmployeeByPage(Page<Employee> page, String name, Long shopId);
+    //Page<Employee> getEmployeeByPage(Page<Employee> page, String name, Long shopId);
 }

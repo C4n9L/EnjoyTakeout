@@ -4,20 +4,4 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.wfh.enjoy.mapper.EmployeeMapper">
 
-    <select id="getEmployeeByPage" resultType="com.wfh.enjoy.entity.Employee">
-        SELECT
-        e.*,
-        ( SELECT `name` FROM shop WHERE id = e.shop_id ) AS shopName
-        FROM
-            employee as e
-        <where>
-            <if test="name != null and name != ''">
-                e.name like "%"#{name}"%"
-            </if>
-            <if test="shopId != null and shopId != '' and shopId != 1 ">
-                and e.shop_id = #{shopId}
-            </if>
-        </where>
-        ORDER BY create_time ASC
-    </select>
 </mapper>
